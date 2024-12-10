@@ -34,13 +34,13 @@ def load_yaml(package_name, file_path):
 
 def generate_launch_description():
     moveit_config = (
-        MoveItConfigsBuilder("moveit_resources_ur")
-        .robot_description(file_path="config/ur3e_robotiq.urdf.xacro")
+        MoveItConfigsBuilder("ur_moveit_config")
+        .robot_description(file_path="ur.srdf.xacro")
         .to_moveit_configs()
     )
 
     # Get parameters for the Servo node
-    servo_yaml = load_yaml("moveit_servo", "config/ur_simulated_config.yaml")
+    servo_yaml = load_yaml("ur_moveit_config", "ur_servo.yaml")
     servo_params = {"moveit_servo": servo_yaml}
 
     # RViz
@@ -63,7 +63,7 @@ def generate_launch_description():
     ros2_controllers_path = os.path.join(
         get_package_share_directory("ur_moveit_config"),
         "config",
-        "ros2_controllers.yaml",
+        "controllers.yaml",
     )
     ros2_control_node = Node(
         package="controller_manager",
@@ -119,7 +119,7 @@ def generate_launch_description():
                 package="tf2_ros",
                 plugin="tf2_ros::StaticTransformBroadcasterNode",
                 name="static_tf2_broadcaster",
-                parameters=[{"child_frame_id": "/panda_link0", "frame_id": "/world"}],
+                parameters=[{"child_frame_id": "/base_link", "frame_id": "/world"}],
             ),
             ComposableNode(
                 package="moveit_servo",
