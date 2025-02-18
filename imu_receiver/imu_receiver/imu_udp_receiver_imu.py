@@ -5,16 +5,15 @@ from rclpy.node import Node
 import socket
 import json
 from sensor_msgs.msg import Imu
-from geometry_msgs.msg import TwistStamped
 
 # UDP settings
 UDP_IP = "0.0.0.0"  # Listen on all interfaces
 UDP_PORT = 12345
 
-class IMUReceiverNode(Node):
+class IMUReceiverNodeImu(Node):
     def __init__(self):
-        super().__init__('imu_udp_receiver')  # Node name
-        self.imu_pub = self.create_publisher(TwistStamped, '/servo_node/delta_twist_cmds', 10)  # Publisher for IMU data
+        super().__init__('imu_udp_receiver_imu')  # Node name
+        self.imu_pub = self.create_publisher(Imu, '/imu_data', 10)  # Publisher for IMU data
         
         # Create UDP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -32,7 +31,7 @@ class IMUReceiverNode(Node):
                 return
 
             # Decode received data and parse as JSON
-            data_str = data.decode('utf-8').strip()
+            data_str = data.decode('utf-8')
             self.get_logger().info(f"Received data: {data_str}")
 
             # Try to load the data into a JSON object
@@ -47,26 +46,24 @@ class IMUReceiverNode(Node):
             #wz = message["wz"]
 
              # Extract values from JSON
-            ux = message.get("ux", 0.0)
-            uy = message.get("uy", 0.0)
-            uz = message.get("uz", 0.0)
+            ax = message.get("ux", 0.0)
+            ay = message.get("uy", 0.0)
+            az = message.get("uz", 0.0)
             wx = message.get("wx", 0.0)
             wy = message.get("wy", 0.0)
             wz = message.get("wz", 0.0)
 
             # Create and publish IMU message
-            imu_msg = TwistStamped()
-            imu_msg.header.stamp = self.get_clock().now().to_msg()
-            imu_msg.header.frame_id = "base_link"
-            imu_msg.twist.linear.x = ux
-            imu_msg.twist.linear.y = uy
-            imu_msg.twist.linear.z = uz
-            imu_msg.twist.angular.x = wx
-            imu_msg.twist.angular.y = wy
-            imu_msg.twist.angular.z = wz
+            imu_msg = Imu()
+            imu_msg.linear_acceleration.x = ax
+            imu_msg.linear_acceleration.y = ay
+            imu_msg.linear_acceleration.z = az
+            imu_msg.angular_velocity.x = wx
+            imu_msg.angular_velocity.y = wy
+            imu_msg.angular_velocity.z = wz
 
             self.imu_pub.publish(imu_msg)
-            #self.get_logger().info(f"Published: {imu_msg}")
+            #self.get_logger().info(f"Published: {message}")
         except Exception as e:
             self.get_logger().error(f"Error receiving or processing data: {str(e)}")
 
@@ -75,11 +72,11 @@ def main(args=None):
     rclpy.init(args=args)
 
     # Create and spin the IMU receiver node
-    imu_receiver_node = IMUReceiverNode()
-    rclpy.spin(imu_receiver_node)
+    imu_receiver_node_imu = IMUReceiverNodeImu()
+    rclpy.spin(imu_receiver_node_imu)
 
     # Cleanup after spinning
-    imu_receiver_node.destroy_node()
+    imu_receiver_node_imu.destroy_node()
     rclpy.shutdown()
 
 
