@@ -5,6 +5,8 @@ import socket
 import json
 from geometry_msgs.msg import TwistStamped
 
+from std_srvs.srv import Trigger
+
 class UDPReceiverNode(Node):
     def __init__(self):
         super().__init__('udp_receiver_node')
@@ -20,7 +22,26 @@ class UDPReceiverNode(Node):
         
         # Create a timer to periodically check for data
         self.timer = self.create_timer(0.05, self.receive_data)  # 50ms (20Hz loop)
-    
+
+        # Create a service client to start the Servo node
+        self.servo_start_client = self.create_client(Trigger, '/servo_node/start_servo')
+        while not self.servo_start_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Service not available, waiting again...')
+        
+        self.send_request()
+        
+    def send_request(self):
+        request = Trigger.Request()
+        future = self.servo_start_client.call_async(request)
+        future.add_done_callback(self.callback)
+
+    def callback(self, future):
+        try:
+            response = future.result()
+            self.get_logger().info(f'Service call succeeded: {response.success}')
+        except Exception as e:
+            self.get_logger().error(f'Service call failed: {str(e)}')
+
     def receive_data(self):
         try:
             self.sock.settimeout(0.01)  # Non-blocking mode
