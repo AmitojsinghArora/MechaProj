@@ -22,7 +22,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'imu_udp_receiver = imu_receiver.imu_udp_receiver:main',
             'udp_ros2_receiver = imu_receiver.udp_ros2_receiver:main',
         ],
     },
