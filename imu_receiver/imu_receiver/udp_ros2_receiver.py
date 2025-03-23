@@ -57,18 +57,18 @@ class UDPReceiverNode(Node):
             imu_msg.header.frame_id = "base_link"
 
 
-            # ux = parsed_data.get("ux", 0.0)
-            # imu_msg.twist.linear.x = min(max(ux, -0.6), 0.6)
+            ux = parsed_data.get("ux", 0.0)
+            imu_msg.twist.linear.x = min(max(ux, -0.6), 0.6)
 
-            # uy = parsed_data.get("uy", 0.0)
-            # imu_msg.twist.linear.y = min(max(uy, -0.6), 0.6)
+            uy = parsed_data.get("uy", 0.0)
+            imu_msg.twist.linear.y = min(max(uy, -0.6), 0.6)
 
-            # uz = parsed_data.get("uz", 0.0)
-            # imu_msg.twist.linear.z = min(max(uz, -0.6), 0.6)
+            uz = parsed_data.get("uz", 0.0)
+            imu_msg.twist.linear.z = min(max(uz, -0.6), 0.6)
 
-            imu_msg.twist.angular.x = parsed_data.get('wx', 0.0)
-            imu_msg.twist.angular.y = parsed_data.get('wy', 0.0)
-            imu_msg.twist.angular.z = parsed_data.get('wz', 0.0)
+            # imu_msg.twist.angular.x = parsed_data.get('wx', 0.0)
+            # imu_msg.twist.angular.y = parsed_data.get('wy', 0.0)
+            # imu_msg.twist.angular.z = parsed_data.get('wz', 0.0)
             self.imu_pub.publish(imu_msg)
 
         except socket.timeout:

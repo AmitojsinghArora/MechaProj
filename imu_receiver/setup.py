@@ -24,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
             'udp_ros2_receiver = imu_receiver.udp_ros2_receiver:main',
+            'udp_receiver_node = imu_receiver.udp_ros2_receiver1:main'
         ],
     },
 )
